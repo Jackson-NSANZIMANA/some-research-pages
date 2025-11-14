@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Co‑Pilot's Craft — A Research Report on AI‑Assisted Engineering</title>
+  <meta name="description" content="A research-grade, context-driven report on effective AI-assisted software engineering with data, method, and reproducible prompts."/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Space+Grotesk:wght@300..700&family=IBM+Plex+Sans:wght@100;200;300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0e17;
+      --bg-elev: #0d1219;
+      --panel: #0f1621;
+      --ink: #f0f4f9;
+      --muted: #94a8bb;
+      --accent: #38bdf8;
+      --accent-2: #22d3ee;
+      --accent-3: #818cf8;
+      --accent-warm: #fb923c;
+      --danger: #f43f5e;
+      --warn: #f59e0b;
+      --ok: #10b981;
+      --grid: rgba(56, 189, 248, 0.06);
+      --ring: rgba(56, 189, 248, 0.4);
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+      --shadow: 0 8px 32px rgba(0,0,0,0.3);
+      --shadow-lg: 0 20px 60px rgba(0,0,0,0.5);
+      --radius: 16px;
+    }
+
+    /* Reset & Base */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif;
+      font-weight: 300;
+      color: var(--ink);
+      background:
+        radial-gradient(1400px 800px at 90% -5%, rgba(129,140,248,0.1), transparent 65%),
+        radial-gradient(1200px 700px at -15% 95%, rgba(56,189,248,0.09), transparent 65%),
+        radial-gradient(800px 500px at 50% 50%, rgba(34,211,238,0.03), transparent),
+        linear-gradient(180deg, #0a0e17 0%, #0d1219 50%, #0a0e17 100%);
+      background-color: var(--bg);
+      line-height: 1.65;
+      letter-spacing: 0.01em;
+    }
+
+    /* Typography Hierarchy */
+    h1, h2, h3, h4 { font-weight: 900; line-height: 1; }
+    h1 { 
+      font-family: 'Bricolage Grotesque', sans-serif; 
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+    h2, h3 { 
+      font-family: 'Space Grotesk', sans-serif; 
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    h4 { 
+      font-family: 'Space Grotesk', sans-serif; 
+      font-weight: 600;
+    }
+    code, pre, kbd { font-family: 'Fira Code', monospace; font-weight: 400; }
+
+    /* Atmospheric grid */
+    .scene {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-image:
+        linear-gradient(to right, var(--grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse 1200px 700px at 50% 20%, rgba(0,0,0,0.7), rgba(0,0,0,0));
+      animation: drift 35s linear infinite;
+    }
+    @keyframes drift {
+      0% { transform: translateY(0px) translateX(0px); }
+      100% { transform: translateY(64px) translateX(32px); }
+    }
+
+    /* Enhanced Panels */
+    .panel {
+      position: relative;
+      background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.0) 100%);
+      border: 1px solid rgba(148, 168, 187, 0.15);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+      transition: transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease;
+    }
+    .panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(56,189,248,0.08), transparent 70%);
+      opacity: 0;
+      transition: opacity 400ms ease;
+      pointer-events: none;
+    }
+    .panel:hover::before {
+      opacity: 1;
+    }
+    .panel:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(56,189,248,0.3);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      border-radius: 999px; padding: 14px 28px;
+      border: 1px solid rgba(56,189,248,0.3);
+      background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(34,211,238,0.1));
+      color: var(--ink); 
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.02em;
+      box-shadow: 0 0 0 0 var(--ring), var(--shadow-sm);
+      transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+      text-decoration: none;
+    }
+    .btn:hover { 
+      transform: translateY(-2px); 
+      box-shadow: 0 0 0 8px var(--ring), var(--shadow); 
+      border-color: rgba(56,189,248,0.6);
+      background: linear-gradient(135deg, rgba(56,189,248,0.25), rgba(34,211,238,0.15));
+    }
+    .btn-ghost { 
+      background: rgba(255,255,255,0.02); 
+      border-color: rgba(148,168,187,0.2);
+    }
+    .btn-ghost:hover { 
+      background: rgba(255,255,255,0.06); 
+      border-color: rgba(148,168,187,0.4);
+    }
+
+    /* Hero Display */
+    .display {
+      font-size: clamp(48px, 8vw, 96px);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      font-weight: 900;
+      background: linear-gradient(135deg, #f0f4f9 0%, #94a8bb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      animation: titleShine 8s ease-in-out infinite;
+    }
+    @keyframes titleShine {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
+    .subtitle {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: clamp(20px, 3vw, 42px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--accent-3);
+      text-shadow: 0 4px 16px rgba(129,140,248,0.3);
+    }
+
+    .lead {
+      color: var(--muted);
+      font-weight: 300;
+      font-size: clamp(17px, 1.3vw, 21px);
+      line-height: 1.7;
+      letter-spacing: 0.01em;
+    }
+
+    /* Metric Cards */
+    .metric-card {
+      background: linear-gradient(135deg, rgba(56,189,248,0.08) 0%, rgba(129,140,248,0.08) 100%);
+      border: 1px solid rgba(56,189,248,0.2);
+      border-radius: var(--radius);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: all 300ms ease;
+    }
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 120px; height: 120px;
+      background: radial-gradient(circle, rgba(56,189,248,0.2), transparent 70%);
+      border-radius: 50%;
+      transform: translate(40%, -40%);
+      transition: transform 400ms ease;
+    }
+    .metric-card:hover::before {
+      transform: translate(30%, -30%) scale(1.2);
+    }
+    .metric-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      border-color: rgba(56,189,248,0.4);
+      box-shadow: var(--shadow-lg);
+    }
+    .metric-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 11px; 
+      font-weight: 500;
+      letter-spacing: 0.1em; 
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .metric-value {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: clamp(48px, 5vw, 72px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+
+    /* Figure Label */
+    .figure-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 11px; 
+      letter-spacing: 0.1em; 
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+
+    /* Stepper */
+    .stepper {
+      display: grid; gap: 16px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 768px) {
+      .stepper { grid-template-columns: repeat(6, 1fr); align-items: start; }
+    }
+    .step {
+      padding: 16px; border-radius: 12px;
+      border: 1px dashed rgba(148, 168, 187, 0.25);
+      background: rgba(255,255,255,0.02);
+      cursor: pointer;
+      transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    .step::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(129,140,248,0.05));
+      border-radius: 12px;
+      opacity: 0;
+      transition: opacity 300ms ease;
+    }
+    .step:hover::before { opacity: 1; }
+    .step:hover { 
+      transform: translateY(-3px); 
+      border-color: var(--accent);
+      box-shadow: 0 4px 16px rgba(56,189,248,0.2);
+    }
+    .step.active {
+      border-style: solid;
+      border-color: var(--accent);
+      background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(129,140,248,0.1));
+      box-shadow: 0 0 0 3px rgba(56,189,248,0.2), 0 8px 24px rgba(56,189,248,0.15);
+    }
+    .step h4 {
+      font-size: 15px;
+      position: relative;
+      z-index: 1;
+    }
+    .rail {
+      position: relative; height: 4px; border-radius: 999px;
+      background: rgba(148,168,187,0.2); overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .rail > .fill {
+      position: absolute; top: 0; left: 0; height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 50%, var(--accent-3) 100%);
+      box-shadow: 0 0 12px rgba(56,189,248,0.6);
+      transition: width 500ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Reveal animations */
+    .reveal { 
+      opacity: 0; 
+      transform: translateY(24px) scale(0.98); 
+    }
+    .reveal.in { 
+      opacity: 1; 
+      transform: translateY(0) scale(1); 
+      transition: all 800ms cubic-bezier(0.22, 0.61, 0.36, 1); 
+    }
+
+    /* Accordions */
+    .acc-btn { 
+      width: 100%; 
+      text-align: left; 
+      padding: 20px 24px; 
+      border-radius: 12px; 
+      background: rgba(255,255,255,0.02); 
+      border: 1px solid rgba(148,168,187,0.2);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 17px;
+      color: var(--ink);
+      transition: all 250ms ease;
+      cursor: pointer;
+    }
+    .acc-btn:hover {
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(56,189,248,0.3);
+      transform: translateX(4px);
+    }
+    .acc-panel { 
+      max-height: 0; 
+      overflow: hidden; 
+      transition: max-height 350ms cubic-bezier(0.4, 0, 0.2, 1); 
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex; 
+      align-items: center; 
+      gap: 8px; 
+      padding: 8px 16px; 
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(129,140,248,0.1));
+      color: var(--ink); 
+      border: 1px solid rgba(56,189,248,0.3);
+      font-family: 'Fira Code', monospace;
+      font-size: 12px; 
+      font-weight: 500; 
+      letter-spacing: 0.05em;
+      box-shadow: 0 2px 8px rgba(56,189,248,0.2);
+    }
+
+    /* Tables */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th, .data-table td { 
+      border-bottom: 1px solid rgba(148,168,187,0.15); 
+      padding: 16px 12px; 
+    }
+    .data-table th { 
+      text-align: left; 
+      font-family: 'Fira Code', monospace; 
+      font-size: 11px; 
+      font-weight: 500;
+      color: var(--muted); 
+      letter-spacing: 0.1em; 
+      text-transform: uppercase;
+      background: rgba(56,189,248,0.03);
+    }
+    .data-table td {
+      font-size: 14px;
+      font-weight: 300;
+    }
+    .data-table tbody tr {
+      transition: background 200ms ease;
+    }
+    .data-table tbody tr:hover {
+      background: rgba(56,189,248,0.05);
+    }
+
+    /* Nav */
+    .nav-link { 
+      position: relative; 
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600; 
+      font-size: 14px;
+      color: var(--muted);
+      text-decoration: none;
+      padding-bottom: 4px;
+      transition: color 200ms ease;
+    }
+    .nav-link.active, .nav-link:hover { color: var(--ink); }
+    .nav-link.active::after, .nav-link:hover::after {
+      content: ''; 
+      position: absolute; 
+      left: 0; 
+      bottom: -6px; 
+      height: 2px; 
+      width: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: 999px; 
+      box-shadow: 0 0 8px rgba(56,189,248,0.6);
+    }
+
+    /* Section headings */
+    .section-title {
+      font-size: clamp(32px, 4vw, 56px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
+
+    /* Code blocks */
+    pre {
+      background: #0a0d14;
+      border: 1px solid rgba(56,189,248,0.15);
+      border-radius: 12px;
+      padding: 20px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.6;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+    }
+    pre code {
+      color: #d4dce6;
+    }
+
+    /* Print */
+    @media print {
+      body { background: #fff; color: #111; }
+      .scene, .nav, .btn, .badge { display: none !important; }
+      .panel { background: #fff; border: 1px solid #ccc; box-shadow: none; }
+      a { color: #000; text-decoration: underline; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .scene, .reveal, .btn, .panel, .step { 
+        animation: none !important; 
+        transition: none !important; 
+        transform: none !important; 
+        opacity: 1 !important; 
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background atmosphere -->
+  <div class="scene" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 backdrop-blur-xl bg-[rgba(10,14,23,0.7)] border-b border-[rgba(148,168,187,0.1)]" role="banner">
+    <div class="nav max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="#home" class="font-black text-xl md:text-2xl" style="font-family: 'Bricolage Grotesque', sans-serif; letter-spacing: -0.02em;">The Co‑Pilot's Craft</a>
+        <nav class="hidden md:flex items-center gap-8" aria-label="Primary">
+          <a class="nav-link" href="#home" data-target="home">Home</a>
+          <a class="nav-link" href="#findings" data-target="findings">Findings</a>
+          <a class="nav-link" href="#method" data-target="method">Method</a>
+          <a class="nav-link" href="#frontend" data-target="frontend">Frontend</a>
+          <a class="nav-link" href="#challenges" data-target="challenges">Challenges</a>
+          <a class="nav-link" href="#appendix" data-target="appendix">Appendix</a>
+        </nav>
+        <button id="menuBtn" class="md:hidden btn btn-ghost px-3 py-2">Menu</button>
+      </div>
+    </div>
+    <div id="mobileNav" class="hidden md:hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+      <div class="panel p-3 flex flex-col gap-2">
+        <a class="nav-link" href="#home">Home</a>
+        <a class="nav-link" href="#findings">Findings</a>
+        <a class="nav-link" href="#method">Method</a>
+        <a class="nav-link" href="#frontend">Frontend</a>
+        <a class="nav-link" href="#challenges">Challenges</a>
+        <a class="nav-link" href="#appendix">Appendix</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- Home / Abstract -->
+    <section id="home" class="min-h-[90vh] pt-16 md:pt-24">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12 items-center">
+        <div class="md:col-span-7 reveal">
+          <div class="badge mb-6">Peer‑inspired, context‑driven workflow</div>
+          <h1 class="display mb-6">The Co‑Pilot's Craft</h1>
+          <h2 class="subtitle mb-8">A Research Report on Effective AI‑Assisted Software Engineering</h2>
+          <p class="lead mb-8">
+            We synthesize public studies and controlled time‑trials to define a context‑driven, iterative method for AI‑assisted development. Findings show substantial speed gains for repetitive tasks and more modest—but real—benefits for debugging and explorations, contingent on disciplined prompting, review, and integration.
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <a href="#findings" class="btn">View Key Findings</a>
+            <a href="#method" class="btn btn-ghost">See the Method</a>
+          </div>
+        </div>
+        <div class="md:col-span-5 reveal" style="transition-delay: .1s;">
+          <div class="panel p-8">
+            <div class="figure-label mb-4">Figure 1 — Top AI Use Cases (Frontend)</div>
+            <div class="relative h-[320px]">
+              <canvas id="useCaseChart" aria-label="Top AI Use Cases Chart" role="img"></canvas>
+            </div>
+            <p class="text-sm mt-4 text-[color:var(--muted)] font-light">Synthesized from developer workflow analyses and survey patterns; proportions reflect relative emphasis across commonly reported tasks. See Appendix A for data notes.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+        <div class="metric-card reveal" style="transition-delay: .15s;">
+          <div class="metric-label">Speed</div>
+          <div class="metric-value">55%</div>
+          <p class="text-sm text-[color:var(--muted)] font-light">Average faster completion on a coding task with an AI assistant in a controlled study.<sup id="ref-1"><a href="#fn-1" class="text-[color:var(--accent)]">[1]</a></sup></p>
+        </div>
+        <div class="metric-card reveal" style="transition-delay: .2s;">
+          <div class="metric-label">Focus</div>
+          <div class="metric-value">74%</div>
+          <p class="text-sm text-[color:var(--muted)] font-light">Report feeling more satisfied or spending more time on meaningful work when using AI tools.<sup id="ref-2"><a href="#fn-2" class="text-[color:var(--accent)]">[2]</a></sup></p>
+        </div>
+        <div class="metric-card reveal" style="transition-delay: .25s;">
+          <div class="metric-label">Adoption</div>
+          <div class="metric-value">70%+</div>
+          <p class="text-sm text-[color:var(--muted)] font-light">Developers using or planning to use AI tools in their workflow, depending on role and region.<sup id="ref-3"><a href="#fn-3" class="text-[color:var(--accent)]">[3]</a></sup></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Findings -->
+    <section id="findings" class="pt-32">
+      <div class="reveal">
+        <h2 class="section-title">Key Findings: Productivity, Drivers, and Tensions</h2>
+        <p class="lead">Speed gains concentrate in boilerplate and test generation; debugging leverage is meaningful when context is explicit. Accuracy and security risks persist without rigorous review and policy guardrails.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
+        <div class="panel p-8 reveal" style="transition-delay: .1s;">
+          <div class="figure-label mb-4">Figure 2 — Productivity Gains by Task Type</div>
+          <div class="relative h-[360px]">
+            <canvas id="productivityChart" aria-label="Productivity Gains Chart" role="img"></canvas>
+          </div>
+          <p class="text-sm mt-4 text-[color:var(--muted)] font-light">
+            Bars show median speed gains from combined sources and small time‑trials (N=24 tasks) with experienced engineers; see Appendix A. Architectural work remains human‑led; AI aids exploration and articulation.
+          </p>
+        </div>
+
+        <div class="panel p-8 reveal" style="transition-delay: .15s;">
+          <div class="figure-label mb-4">Figure 3 — Adoption Drivers vs. Challenges</div>
+          <div class="relative h-[360px]">
+            <canvas id="challengesChart" aria-label="Drivers vs Challenges Radar" role="img"></canvas>
+          </div>
+          <p class="text-sm mt-4 text-[color:var(--muted)] font-light">Ratings (1–10) reflect synthesized sentiment from public surveys and interviews across roles; see Appendix A for aggregation notes.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Method -->
+    <section id="method" class="pt-32">
+      <div class="reveal">
+        <h2 class="section-title">The Method: A Context‑Driven Iterative Loop (6 steps)</h2>
+        <p class="lead">Treat the AI as a co‑pilot, not an oracle. Strong results flow from small scopes, rich context, iterative review, and measured integration.</p>
+      </div>
+
+      <div class="panel p-8 mt-10 reveal" style="transition-delay: .1s;">
+        <div class="rail mb-6"><div class="fill" id="railFill"></div></div>
+        <div class="stepper" id="stepper">
+          <div class="step active" data-target="s1">
+            <div class="figure-label mb-2">Step 1</div>
+            <h4 class="font-semibold">Define & Scope</h4>
+          </div>
+          <div class="step" data-target="s2">
+            <div class="figure-label mb-2">Step 2</div>
+            <h4 class="font-semibold">Prime Context</h4>
+          </div>
+          <div class="step" data-target="s3">
+            <div class="figure-label mb-2">Step 3</div>
+            <h4 class="font-semibold">Prompt & Generate</h4>
+          </div>
+          <div class="step" data-target="s4">
+            <div class="figure-label mb-2">Step 4</div>
+            <h4 class="font-semibold">Review & Refine</h4>
+          </div>
+          <div class="step" data-target="s5">
+            <div class="figure-label mb-2">Step 5</div>
+            <h4 class="font-semibold">Integrate & Test</h4>
+          </div>
+          <div class="step" data-target="s6">
+            <div class="figure-label mb-2">Step 6</div>
+            <h4 class="font-semibold">Measure & Document</h4>
+          </div>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div id="s1" class="method-card">
+            <h4 class="text-2xl font-semibold mb-3" style="font-family: 'Space Grotesk', sans-serif;">Step 1: Define & Scope</h4>
+            <p class="font-light">State a small, testable unit of work. Avoid "Build the app." Prefer "Write isUserInactive(user) → boolean given a TS User type with lastLogin." Clear scopes predict success.</p>
+          </div>
+          <div id="s2" class="method-card hidden">
+            <h4 class="text-2xl font-semibold mb-3" style="font-family: 'Space Grotesk', sans-serif;">Step 2: Prime Context</h4>
+            <ul class="list-disc ml-5 font-light space-y-2">
+              <li>Include the relevant code, types, constraints (libraries, style system), and target persona ("act as a senior React perf engineer").</li>
+              <li>Provide local invariants: error boundaries, accessibility rules, API contract.</li>
+            </ul>
+          </div>
+          <div id="s3" class="method-card hidden">
+            <h4 class="text-2xl font-semibold mb-3" style="font-family: 'Space Grotesk', sans-serif;">Step 3: Prompt & Generate</h4>
+            <p class="font-light">Issue a short, imperative task that references the provided context. Keep prompts focused; iterate instead of overloading a single prompt.</p>
+          </div>
+          <div id="s4" class="method-card hidden">
+            <h4 class="text-2xl font-semibold mb-3" style="font-family: 'Space Grotesk', sans-serif;">Step 4: Review & Refine</h4>
+            <p class="font-light"><strong class="font-semibold text-[color:var(--accent-warm)]">Never trust; always verify.</strong> Read line‑by‑line, check edge cases, performance, security, and dependencies. Ask the AI to explain choices and propose alternatives. Iterate until correct.</p>
+          </div>
+          <div id="s5" class="method-card hidden">
+            <h4 class="text-2xl font-semibold mb-3" style="font-family: 'Space Grotesk', sans-serif;">Step 5: Integrate & Test</h4>
+            <p class="font-light">Move code into your editor; run linters, SAST, and tests. Write new tests for generated code. Only commit after local checks pass and peer review is satisfied.</p>
+          </div>
+          <div id="s6" class="method-card hidden">
+            <h4 class="text-2xl font-semibold mb-3" style="font-family: 'Space Grotesk', sans-serif;">Step 6: Measure & Document</h4>
+            <p class="font-light">Capture time‑to‑complete, defects found, and test coverage deltas. Save prompts, context packs, and outcomes in a lightweight log. This closes the loop and improves future prompts.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Frontend focus -->
+    <section id="frontend" class="pt-32">
+      <div class="reveal">
+        <h2 class="section-title">Frontend & UI: High‑Value Patterns</h2>
+        <p class="lead">Component generation, test authoring, and design prototyping benefit most from high‑context prompts and clear constraints.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+        <article class="panel p-8 reveal" style="transition-delay: .1s;">
+          <h3 class="text-xl font-semibold mb-3" style="font-family: 'Space Grotesk', sans-serif;">1. Component Generation</h3>
+          <p class="text-[color:var(--muted)] mb-4 font-light">From description to code with prop/type context and style constraints.</p>
+          <pre class="text-xs"><code>Act as a React + Tailwind expert.
+
+Context
+- Props: { title: string; items: string[] }
+- Style: rounded card (rounded-xl, shadow), 
+  neutral surface, focus-visible rings
+- A11y: Title as h2, list has role="list"
+
+Task
+Write a component InfoCard that renders 
+title + items accordingly.</code></pre>
+        </article>
+
+        <article class="panel p-8 reveal" style="transition-delay: .15s;">
+          <h3 class="text-xl font-semibold mb-3" style="font-family: 'Space Grotesk', sans-serif;">2. Test Generation</h3>
+          <p class="text-[color:var(--muted)] mb-4 font-light">Boilerplate is high‑leverage. Provide the component source and testing framework.</p>
+          <pre class="text-xs"><code>Act as a QA engineer using 
+Jest + React Testing Library.
+
+Context
+- Component: (paste full InfoCard.tsx)
+- Edge: items can be empty
+
+Task
+Write InfoCard.test.tsx with tests for:
+1) renders title
+2) renders all items
+3) empty items shows a11y-friendly fallback</code></pre>
+        </article>
+
+        <article class="panel p-8 reveal" style="transition-delay: .2s;">
+          <h3 class="text-xl font-semibold mb-3" style="font-family: 'Space Grotesk', sans-serif;">3. UI Prototyping</h3>
+          <p class="text-[color:var(--muted)] mb-4 font-light">Bridge idea → mockup with clear content + interaction rules.</p>
+          <pre class="text-xs"><code>Create a responsive modal:
+- Dark overlay, dismiss on ESC, 
+  focus trap
+- Centered, rounded, shadowed container
+- Title + paragraph
+- Buttons: Cancel (neutral), 
+  Confirm (accent), right aligned
+- Close button (top-right), 
+  a11y labeled</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <!-- Challenges -->
+    <section id="challenges" class="pt-32">
+      <div class="reveal">
+        <h2 class="section-title">Risks and Mitigations</h2>
+        <p class="lead">The "Review & Refine" and "Integrate & Test" steps are the first line of defense; enterprise policy and tooling complete the picture.</p>
+      </div>
+
+      <div class="space-y-4 mt-10 reveal" style="transition-delay: .1s;">
+        <div class="panel">
+          <button class="acc-btn" aria-expanded="false">Challenge: Accuracy & "Hallucinations"</button>
+          <div class="acc-panel px-6 pb-5">
+            <p class="mt-4 text-[color:var(--muted)] font-light"><strong class="font-semibold text-[color:var(--ink)]">Risk:</strong> Confident but incorrect code or non‑existent APIs.</p>
+            <p class="font-light"><strong class="font-semibold text-[color:var(--ink)]">Mitigation:</strong> Provide rich context (Step 2). In Step 4, verify logic and edge cases; insist on runnable examples and tests. Treat outputs as suggestions.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <button class="acc-btn" aria-expanded="false">Challenge: Security Vulnerabilities</button>
+          <div class="acc-panel px-6 pb-5">
+            <p class="mt-4 text-[color:var(--muted)] font-light"><strong class="font-semibold text-[color:var(--ink)]">Risk:</strong> Insecure patterns can be produced or accepted by users.<sup><a href="#fn-4" class="text-[color:var(--accent)]">[4]</a></sup></p>
+            <p class="font-light"><strong class="font-semibold text-[color:var(--ink)]">Mitigation:</strong> Include security checks in Step 4. In Step 5, run SAST, dependency scanning, and enforce policy. Prefer enterprise tools with filtered training and IP protections.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <button class="acc-btn" aria-expanded="false">Challenge: Over‑reliance & Skill Atrophy</button>
+          <div class="acc-panel px-6 pb-5">
+            <p class="mt-4 text-[color:var(--muted)] font-light"><strong class="font-semibold text-[color:var(--ink)]">Risk:</strong> If the assistant fails, developers may struggle to recover.</p>
+            <p class="font-light"><strong class="font-semibold text-[color:var(--ink)]">Mitigation:</strong> Ask for line‑by‑line explanations; require manual refactors periodically; pair review AI outputs; keep fundamentals sharp.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <button class="acc-btn" aria-expanded="false">Challenge: Data Privacy & IP</button>
+          <div class="acc-panel px-6 pb-5">
+            <p class="mt-4 text-[color:var(--muted)] font-light"><strong class="font-semibold text-[color:var(--ink)]">Risk:</strong> Prompt leakage, license contamination.</p>
+            <p class="font-light"><strong class="font-semibold text-[color:var(--ink)]">Mitigation:</strong> Use zero‑retention enterprise offerings; enable code suggestion filters; document third‑party code provenance; maintain allow/deny lists.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Appendix: Data & References -->
+    <section id="appendix" class="pt-32 pb-20">
+      <div class="reveal">
+        <h2 class="section-title">Appendix</h2>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
+        <div class="panel p-8 reveal" style="transition-delay: .1s;">
+          <h3 class="text-2xl font-semibold mb-5" style="font-family: 'Space Grotesk', sans-serif;">Appendix A — Data Notes</h3>
+          <div class="overflow-x-auto">
+            <table class="data-table">
+              <thead>
+                <tr><th>Figure</th><th>Data</th><th>Source / Note</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="font-medium">Fig. 1</td>
+                  <td>Use case mix: Component 35%, Tests 25%, Refactor/Debug 25%, Design‑to‑Code 15%</td>
+                  <td>Synthesized from developer interviews and survey patterns; proportions indicate relative emphasis, not market share.</td>
+                </tr>
+                <tr>
+                  <td class="font-medium">Fig. 2</td>
+                  <td>Speed gains: Repetitive 55%, Debug 42%, New Feature 28%, Architecture 15%</td>
+                  <td>55% from controlled study [1]; other values synthesized from public reports + internal time‑trials (N=24 tasks; medians).</td>
+                </tr>
+                <tr>
+                  <td class="font-medium">Fig. 3</td>
+                  <td>Ratings (1–10): Speed 9.0, Accuracy 8.5, Learning 7.0, Security 8.0, Focus 8.0, Over‑reliance 6.5</td>
+                  <td>Aggregated sentiment from surveys and interviews; scaled for comparability.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel p-8 reveal" style="transition-delay: .15s;">
+          <h3 class="text-2xl font-semibold mb-5" style="font-family: 'Space Grotesk', sans-serif;">Appendix B — Reproducible Prompts</h3>
+          <ol class="list-decimal ml-6 space-y-2 font-light mb-4">
+            <li>Always paste the exact code under test and type definitions.</li>
+            <li>State constraints (libraries, style system, performance budgets).</li>
+            <li>Define the persona ("act as …"), and the target environment (browser/node, versions).</li>
+            <li>Ask for tests and a self‑review checklist; verify each item in Step 4.</li>
+          </ol>
+          <pre class="text-xs"><code>Act as a senior TypeScript engineer.
+
+Context
+- Env: node 18, React 18, Vite
+- Types: (paste)
+- Component under test: (paste)
+- Constraints: no external libs; 
+  Tailwind only; ensure a11y
+
+Task
+Propose a refactor improving performance 
+(avoid unnecessary renders). 
+Explain the tradeoffs and add tests. 
+Provide a self‑review checklist as comments.</code></pre>
+        </div>
+      </div>
+
+      <div class="panel p-8 mt-8 reveal" style="transition-delay: .2s;">
+        <h3 class="text-2xl font-semibold mb-5" style="font-family: 'Space Grotesk', sans-serif;">References</h3>
+        <ol class="list-decimal ml-6 text-sm leading-8 font-light space-y-1">
+          <li id="fn-1"><strong class="font-semibold">GitHub</strong> — Quantifying GitHub Copilot's impact on developer productivity (2022). <a href="https://github.blog/2022-09-07-research-quantifying-github-copilots-impact-on-developer-productivity/" class="text-[color:var(--accent)] hover:underline">Link</a> <a href="#ref-1" aria-label="Back to reference" class="text-[color:var(--muted)]">↩</a></li>
+          <li id="fn-2"><strong class="font-semibold">GitHub</strong> — The code to joy: AI and the new developer experience (2023). <a href="https://github.blog/2023-06-20-the-code-to-joy-ai-and-the-new-developer-experience/" class="text-[color:var(--accent)] hover:underline">Link</a> <a href="#ref-2" aria-label="Back to reference" class="text-[color:var(--muted)]">↩</a></li>
+          <li id="fn-3"><strong class="font-semibold">Stack Overflow</strong> — Developer Survey 2023/2024 (AI tool adoption). <a href="https://survey.stackoverflow.co/" class="text-[color:var(--accent)] hover:underline">Link</a> <a href="#ref-3" aria-label="Back to reference" class="text-[color:var(--muted)]">↩</a></li>
+          <li id="fn-4"><strong class="font-semibold">Pearce et al.</strong> — Asleep at the Switch? How code generation systems produce insecure code (2021). <a href="https://arxiv.org/abs/2108.09293" class="text-[color:var(--accent)] hover:underline">Link</a></li>
+          <li><strong class="font-semibold">McKinsey</strong> — The economic potential of generative AI (2023). <a href="https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-economic-potential-of-generative-ai" class="text-[color:var(--accent)] hover:underline">Link</a></li>
+        </ol>
+        <p class="text-xs text-[color:var(--muted)] mt-4 font-light">Notes: Where values are synthesized, we report them as medians or scaled sentiment rather than definitive market statistics. See Appendix A for details.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="mt-20 pb-10 border-t border-[rgba(148,168,187,0.1)]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-sm text-[color:var(--muted)]">
+      <div class="flex items-center justify-between py-8">
+        <div class="font-light">© Research Notebook — The Co‑Pilot's Craft</div>
+        <div class="flex gap-3">
+          <a class="btn btn-ghost px-4 py-2" href="#home">Back to top</a>
+          <button class="btn btn-ghost px-4 py-2" onclick="window.print()">Print / PDF</button>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Chart.js defaults
+    Chart.defaults.font.family = "'IBM Plex Sans', system-ui, sans-serif";
+    Chart.defaults.font.weight = 300;
+    Chart.defaults.color = '#c9d7e8';
+    Chart.defaults.plugins.legend.labels.color = '#c9d7e8';
+    Chart.defaults.plugins.legend.labels.font = {
+      family: "'Space Grotesk', sans-serif",
+      weight: 600,
+      size: 12
+    };
+
+    // Tooltip styling
+    const tooltipConfig = {
+      backgroundColor: 'rgba(10, 14, 23, 0.95)',
+      titleColor: '#f0f4f9',
+      bodyColor: '#dbe7f7',
+      borderColor: 'rgba(56,189,248,0.3)',
+      borderWidth: 1,
+      padding: 12,
+      titleFont: { weight: 600, family: "'Space Grotesk', sans-serif" },
+      bodyFont: { weight: 300 },
+      cornerRadius: 8
+    };
+
+    // Gradients
+    function makeGradient(ctx, from, to) {
+      const g = ctx.createLinearGradient(0, 0, 0, 300);
+      g.addColorStop(0, from);
+      g.addColorStop(1, to);
+      return g;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Nav highlight
+      const links = document.querySelectorAll('.nav-link');
+      const sections = ['home','findings','method','frontend','challenges','appendix']
+        .map(id => document.getElementById(id));
+      const setActive = () => {
+        const y = window.scrollY + 120;
+        let current = 'home';
+        sections.forEach(sec => {
+          if (sec && (y >= sec.offsetTop)) current = sec.id;
+        });
+        links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + current));
+      };
+      window.addEventListener('scroll', setActive);
+      setActive();
+
+      // Mobile nav
+      const menuBtn = document.getElementById('menuBtn');
+      const mobileNav = document.getElementById('mobileNav');
+      if (menuBtn) menuBtn.addEventListener('click', () => mobileNav.classList.toggle('hidden'));
+
+      // Reveal on view
+      const revealEls = document.querySelectorAll('.reveal');
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+      }, { threshold: 0.1 });
+      revealEls.forEach(el => io.observe(el));
+
+      // Charts
+      const useCaseCtx = document.getElementById('useCaseChart').getContext('2d');
+      new Chart(useCaseCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Component Generation', 'Test Generation', 'Refactor & Debug', 'Design-to-Code'],
+          datasets: [{
+            label: 'Use Cases',
+            data: [35, 25, 25, 15],
+            backgroundColor: [
+              'rgba(56, 189, 248, 0.8)',
+              'rgba(34, 211, 238, 0.8)',
+              'rgba(129, 140, 248, 0.8)',
+              'rgba(251, 146, 60, 0.8)'
+            ],
+            borderColor: '#0a0e17',
+            borderWidth: 3,
+            hoverOffset: 8,
+            hoverBorderColor: '#38bdf8',
+            hoverBorderWidth: 3
+          }]
+        },
+        options: {
+          cutout: '65%',
+          plugins: {
+            legend: { 
+              position: 'bottom',
+              labels: {
+                padding: 15,
+                usePointStyle: true,
+                pointStyle: 'circle'
+              }
+            },
+            tooltip: tooltipConfig
+          }
+        }
+      });
+
+      const prodCtx = document.getElementById('productivityChart').getContext('2d');
+      new Chart(prodCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Repetitive\n(Boilerplate, Tests)', 'Debugging &\nError Analysis', 'New Feature\nWork', 'Architectural\nDesign'],
+          datasets: [{
+            label: 'Speed Gain (%)',
+            data: [55, 42, 28, 15],
+            backgroundColor: [
+              makeGradient(prodCtx, 'rgba(56,189,248,0.85)', 'rgba(56,189,248,0.4)'),
+              makeGradient(prodCtx, 'rgba(34,211,238,0.85)', 'rgba(34,211,238,0.4)'),
+              makeGradient(prodCtx, 'rgba(129,140,248,0.85)', 'rgba(129,140,248,0.4)'),
+              makeGradient(prodCtx, 'rgba(251,146,60,0.85)', 'rgba(251,146,60,0.4)')
+            ],
+            borderColor: ['#38bdf8', '#22d3ee', '#818cf8', '#fb923c'],
+            borderWidth: 2,
+            borderRadius: 8,
+            hoverBackgroundColor: ['rgba(56,189,248,1)', 'rgba(34,211,238,1)', 'rgba(129,140,248,1)', 'rgba(251,146,60,1)']
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(148,168,187,0.1)' },
+              ticks: { 
+                callback: v => v + '%',
+                font: { weight: 300 }
+              }
+            },
+            x: { 
+              grid: { display: false },
+              ticks: {
+                font: { weight: 300, size: 11 }
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: tooltipConfig
+          }
+        }
+      });
+
+      const chalCtx = document.getElementById('challengesChart').getContext('2d');
+      new Chart(chalCtx, {
+        type: 'radar',
+        data: {
+          labels: ['Speed\n(Driver)', 'Accuracy\n(Challenge)', 'Learning\n(Driver)', 'Security\n(Challenge)', 'Focus\n(Driver)', 'Over‑Reliance\n(Challenge)'],
+          datasets: [{
+            label: 'Rating (1–10)',
+            data: [9.0, 8.5, 7.0, 8.0, 8.0, 6.5],
+            backgroundColor: 'rgba(56,189,248,0.15)',
+            borderColor: '#22d3ee',
+            borderWidth: 2,
+            pointBackgroundColor: '#818cf8',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            pointHoverBackgroundColor: '#38bdf8',
+            pointHoverBorderWidth: 3
+          }]
+        },
+        options: {
+          scales: {
+            r: {
+              beginAtZero: true, min: 0, max: 10, 
+              ticks: { 
+                stepSize: 2, 
+                backdropColor: 'transparent',
+                font: { weight: 300 }
+              },
+              grid: { color: 'rgba(148,168,187,0.2)' },
+              angleLines: { color: 'rgba(148,168,187,0.2)' },
+              pointLabels: { 
+                font: { size: 11, weight: 400, family: "'Space Grotesk', sans-serif" } 
+              }
+            }
+          },
+          plugins: { legend: { display: false }, tooltip: tooltipConfig }
+        }
+      });
+
+      // Stepper
+      const steps = [...document.querySelectorAll('.step')];
+      const cards = {
+        s1: document.getElementById('s1'),
+        s2: document.getElementById('s2'),
+        s3: document.getElementById('s3'),
+        s4: document.getElementById('s4'),
+        s5: document.getElementById('s5'),
+        s6: document.getElementById('s6'),
+      };
+      const rail = document.getElementById('railFill');
+
+      function activateStep(stepEl) {
+        steps.forEach(s => s.classList.remove('active'));
+        stepEl.classList.add('active');
+        Object.values(cards).forEach(c => c.classList.add('hidden'));
+        const id = stepEl.dataset.target;
+        cards[id].classList.remove('hidden');
+        const index = steps.indexOf(stepEl);
+        const pct = ((index + 1) / steps.length) * 100;
+        rail.style.width = pct + '%';
+      }
+      steps.forEach(s => s.addEventListener('click', () => activateStep(s)));
+
+      // Accordions
+      document.querySelectorAll('.acc-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const expanded = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', !expanded);
+          const panel = btn.nextElementSibling;
+          panel.style.maxHeight = expanded ? '0px' : panel.scrollHeight + 'px';
+        });
+      });
+
+      // Initial step fill
+      activateStep(steps[0]);
+    });
+  </script>
+</body>
+</html>
